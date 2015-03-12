@@ -53,7 +53,6 @@ ADD_REQUIRED_DEPENDENCY("sot-core")
 ADD_REQUIRED_DEPENDENCY("sot-dynamic >= 2.8")
 ADD_REQUIRED_DEPENDENCY("dynamic-graph-python")
 
-ADD_ROSPACK_DEPENDENCY("dynamic_graph_bridge_msgs")
 ADD_ROSPACK_DEPENDENCY("dynamic_graph_bridge")
 # Search for dependencies.
 # Boost
