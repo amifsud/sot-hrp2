@@ -46,6 +46,9 @@ class SoTHRP2Controller: public
 
   void cleanupSetSensors(std::map<std::string, dgsot::SensorValues> &sensorsIn);
 
+  dynamicgraph::Matrix getAttitude();
+  bool getNewKF();
+
   void getControl(std::map<std::string, dgsot::ControlValues> &anglesOut);
 
   /// Embedded python interpreter accessible via Corba

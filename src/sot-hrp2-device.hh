@@ -28,8 +28,7 @@
 
 namespace dgsot=dynamicgraph::sot;
 
-class SoTHRP2Device: public 
-dgsot::Device
+class SoTHRP2Device: public dgsot::Device
 {
  public:
 
@@ -40,10 +39,12 @@ dgsot::Device
   {  
     return CLASS_NAME;							    
   }
-  
+
   SoTHRP2Device(std::string RobotName);
   virtual ~SoTHRP2Device();
   
+  dynamicgraph::Matrix getAttitude();
+
   void setSensors(std::map<std::string,dgsot::SensorValues> &sensorsIn);
 
   void setupSetSensors(std::map<std::string,dgsot::SensorValues> &sensorsIn);
@@ -53,6 +54,16 @@ dgsot::Device
   void cleanupSetSensors(std::map<std::string, dgsot::SensorValues> &sensorsIn);
 
   void getControl(std::map<std::string, dgsot::ControlValues> &anglesOut);
+
+  void setNewKF(const bool& b)
+  {
+      newKF_=b;
+  }
+
+  bool getNewKF() const
+  {
+      return newKF_;
+  }
 
 protected:
   // Update output port with the control computed from the
@@ -64,7 +75,10 @@ protected:
   
   /// \brief Previous robot configuration.
   maal::boost::Vector previousState_;
-  
+
+  /// attitudeInput
+  dynamicgraph::SignalPtr<dynamicgraph::Matrix, int> attitudeSIN_;
+
   /// \brief Robot state provided by OpenHRP.
   ///
   /// This corresponds to the real encoders values and take into
@@ -86,5 +100,7 @@ protected:
   ml::Vector gyrometer_;
   std::vector<double> baseff_;
   ml::Vector torques_;
+
+  bool newKF_;
 };
 #endif /* _SOT_HRP2Device_H_*/

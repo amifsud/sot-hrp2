@@ -83,6 +83,15 @@ cleanupSetSensors(map<string, dgsot::SensorValues> &SensorsIn)
   device_.cleanupSetSensors(SensorsIn);
 }
 
+dynamicgraph::Matrix SoTHRP2Controller::getAttitude()
+{
+  return device_.getAttitude();
+}
+
+bool SoTHRP2Controller::getNewKF()
+{
+    return device_.getNewKF();
+}
 
 void SoTHRP2Controller::
 getControl(map<string,dgsot::ControlValues> &controlOut)

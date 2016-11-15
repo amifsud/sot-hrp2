@@ -34,16 +34,17 @@ SoTHRP2Device::SoTHRP2Device(std::string RobotName):
   dgsot::Device(RobotName),
   timestep_(TIMESTEP_DEFAULT),
   previousState_ (),
-  robotState_ ("StackOfTasks(" + RobotName + ")::output(vector)::robotState"),
-  accelerometerSOUT_
-  ("StackOfTasks(" + RobotName + ")::output(vector)::accelerometer"),
-  gyrometerSOUT_ ("StackOfTasks(" + RobotName + ")::output(vector)::gyrometer"),
+  attitudeSIN_(NULL,"StackOfTasks(" + RobotName + ")::input(matrix)::attitudeIn"),
+  robotState_("StackOfTasks(" + RobotName + ")::output(vector)::robotState"),
+  accelerometerSOUT_("StackOfTasks(" + RobotName + ")::output(vector)::accelerometer"),
+  gyrometerSOUT_("StackOfTasks(" + RobotName + ")::output(vector)::gyrometer"),
   mlforces (6),
   pose (),
   accelerometer_ (3),
   gyrometer_ (3),
   torques_(),
-  baseff_ ()
+  baseff_ (),
+  newKF_(false)
 {
   sotDEBUGIN(25) ;
   for( int i=0;i<4;++i ) { withForceSignals[i] = true; }
@@ -52,6 +53,8 @@ SoTHRP2Device::SoTHRP2Device(std::string RobotName):
   accelerometerSOUT_.setConstant (data);
   gyrometerSOUT_.setConstant (data);
   baseff_.resize(12);
+
+  signalRegistration(attitudeSIN_);
 
   using namespace dynamicgraph::command;
   std::string docstring;
@@ -65,12 +68,41 @@ SoTHRP2Device::SoTHRP2Device(std::string RobotName):
   addCommand("increment",
 	     makeCommandVoid1((Device&)*this,
 			      &Device::increment, docstring));
+
+  //setNewKF
+ docstring =
+         "\n"
+         "    Set wether or not we use the new Kalman Filter \n"
+         "\n";
+
+ addCommand(std::string("setNewKF"),
+      new
+      ::dynamicgraph::command::Setter <SoTHRP2Device,bool>
+         (*this, &SoTHRP2Device::setNewKF, docstring));
+
+
+  //getNewKF
+ docstring =
+         "\n"
+         "    Get wether or not we use the new Kalman Filter \n"
+         "\n";
+
+ addCommand(std::string("getNewKF"),
+      new
+      ::dynamicgraph::command::Getter <SoTHRP2Device,bool>
+         (*this, &SoTHRP2Device::getNewKF, docstring));
   
   sotDEBUGOUT(25);
 }
 
 SoTHRP2Device::~SoTHRP2Device()
 { }
+
+dynamicgraph::Matrix SoTHRP2Device::getAttitude()
+{
+    const int & time(stateSOUT.getTime());
+    return attitudeSIN_.access(time);
+}
 
 void SoTHRP2Device::setSensors(map<string,dgsot::SensorValues> &SensorsIn)
 {
